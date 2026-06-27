@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BeatMaker PRO</title>
+
+<link rel="icon" href="./music-logo-png-clip-art.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/all.min.css"/>
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:#070a12;
+color:white;
+}
+
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px;
+background:#0d1224;
+border-bottom:1px solid #1c2440;
+}
+
+.title{
+font-weight:bold;
+color:#00ff99;
+letter-spacing:2px;
+}
+
+.container{padding:20px;}
+
+.track{
+background:#0d1224;
+margin-bottom:15px;
+padding:15px;
+border-radius:12px;
+border:1px solid #1c2440;
+}
+
+.controls{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:10px;
+}
+
+.controls h2{margin:0;font-size:16px;}
+
+button.mute{
+background:#1a1f35;
+border:none;
+padding:8px 10px;
+border-radius:8px;
+cursor:pointer;
+color:white;
+}
+
+button.mute.active{
+background:#00ff99;
+color:black;
+}
+
+select{
+background:#1a1f35;
+color:white;
+border:none;
+padding:6px;
+border-radius:6px;
+}
+
+.pads{
+display:grid;
+grid-template-columns:repeat(8,1fr);
+gap:6px;
+}
+
+.pad{
+aspect-ratio:1;
+background:#151c33;
+border-radius:6px;
+cursor:pointer;
+}
+
+.pad.active{
+background:#00ff99;
+}
+
+.tempo{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-top:15px;
+background:#0d1224;
+padding:10px;
+border-radius:10px;
+}
+
+input[type=range]{width:70%;}
+
+.play{
+width:100%;
+margin-top:15px;
+padding:12px;
+background:#00ff99;
+border:none;
+border-radius:10px;
+cursor:pointer;
+font-weight:bold;
+}
+
+footer{
+text-align:center;
+padding:10px;
+opacity:0.6;
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+<div class="title">BEATMAKER PRO</div>
+<div>RapFame Engine UI</div>
+</div>
+
+<div class="container">
+
+<!-- TRACKS -->
+<div class="track">
+<div class="controls">
+<h2>Kick</h2>
+<button class="mute" data-track="kick">🔇</button>
+<select id="kick-select">
+<option value="allSounds/kick-808.wav">808 Kick</option>
+<option value="allSounds/kick-classic.wav">Classic Kick</option>
+<option value="allSounds/kick-deep.wav">Deep Kick</option>
+</select>
+</div>
+<div class="pads kick-pads"></div>
+</div>
+
+<div class="track">
+<div class="controls">
+<h2>Snare</h2>
+<button class="mute" data-track="snare">🔇</button>
+<select id="snare-select">
+<option value="allSounds/snare-808.wav">808 Snare</option>
+<option value="allSounds/snare-acoustic01.wav">Acoustic</option>
+<option value="allSounds/snare-vinyl01.wav">Vinyl</option>
+</select>
+</div>
+<div class="pads snare-pads"></div>
+</div>
+
+<div class="track">
+<div class="controls">
+<h2>Hihat</h2>
+<button class="mute" data-track="hihat">🔇</button>
+<select id="hihat-select">
+<option value="allSounds/hihat-808.wav">808 Hihat</option>
+<option value="allSounds/hihat-acoustic01.wav">Acoustic</option>
+<option value="allSounds/hihat-ring.wav">Ring</option>
+</select>
+</div>
+<div class="pads hihat-pads"></div>
+</div>
+
+<!-- TEMPO -->
+<div class="tempo">
+<p>Tempo: <span id="tempo-val">150</span></p>
+<input type="range" min="50" max="300" value="150" id="tempo">
+</div>
+
+<button class="play">▶ PLAY</button>
+
+</div>
+
+<footer>Developed by Metatron878</footer>
+
+<script>
+
+/* ===== WEB AUDIO ENGINE (FIXED REAL DAW STYLE) ===== */
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+const tracks = ["kick","snare","hihat"];
+
+const muted = {
+kick:false,
+snare:false,
+hihat:false
+};
+
+let tempo = 150;
+let isPlaying = false;
+let index = 0;
+
+const buffers = {};
+
+/* LOAD SOUND */
+async function load(track, url){
+const res = await fetch(url);
+const arrayBuffer = await res.arrayBuffer();
+buffers[track] = await audioCtx.decodeAudioData(arrayBuffer);
+}
+
+/* INIT */
+async function init(){
+await load("kick","allSounds/kick-808.wav");
+await load("snare","allSounds/snare-808.wav");
+await load("hihat","allSounds/hihat-808.wav");
+}
+
+init();
+
+/* PLAY SOUND */
+function play(track){
+if(muted[track]) return;
+
+const source = audioCtx.createBufferSource();
+source.buffer = buffers[track];
+source.connect(audioCtx.destination);
+source.start();
+}
+
+/* BUILD GRID */
+tracks.forEach(track=>{
+const container = document.querySelector(`.${track}-pads`);
+
+for(let i=0;i<8;i++){
+const pad = document.createElement("div");
+pad.classList.add("pad");
+pad.dataset.step=i;
+
+pad.addEventListener("click",()=>{
+pad.classList.toggle("active");
+});
+
+container.appendChild(pad);
+}
+});
+
+/* MUTE */
+document.querySelectorAll(".mute").forEach(btn=>{
+btn.addEventListener("click",()=>{
+const track = btn.dataset.track;
+muted[track] = !muted[track];
+btn.classList.toggle("active");
+btn.innerHTML = muted[track] ? "🔇" : "🔊";
+});
+});
+
+/* TEMPO */
+document.getElementById("tempo").addEventListener("input",(e)=>{
+tempo = e.target.value;
+document.getElementById("tempo-val").innerText = tempo;
+});
+
+/* PLAY */
+document.querySelector(".play").addEventListener("click",async ()=>{
+await audioCtx.resume(); // IMPORTANT FIX
+isPlaying = !isPlaying;
+if(isPlaying) loop();
+});
+
+/* LOOP */
+function loop(){
+if(!isPlaying) return;
+
+const step = index % 8;
+
+tracks.forEach(track=>{
+const pad = document.querySelector(`.${track}-pads .pad[data-step="${step}"]`);
+if(pad && pad.classList.contains("active")){
+play(track);
+}
+});
+
+index++;
+setTimeout(loop, (60000/tempo)/2);
+}
+
+</script>
+
+</body>
+  </html>
