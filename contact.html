@@ -85,12 +85,18 @@ button {
 </nav>
 
 <main>
-    <form>
-        <input type="text" placeholder="Your Name">
-        <input type="email" placeholder="Your Email">
-        <textarea rows="5" placeholder="Your Message"></textarea>
+
+    <!-- EMAIL SENDING SYSTEM -->
+    <form action="https://formsubmit.co/tawanametatronnzombe@gmail.com" method="POST">
+
+        <input type="text" name="name" placeholder="Your Name" required>
+        <input type="email" name="email" placeholder="Your Email" required>
+        <textarea rows="5" name="message" placeholder="Your Message" required></textarea>
+
         <button type="submit">Send</button>
+
     </form>
+
 </main>
 
 </body>
