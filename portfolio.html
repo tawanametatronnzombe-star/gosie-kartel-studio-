@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio | gosie-kartel studio 🎙️</title>
+
+<style>
+:root {
+    --bg-color: #0d0e12;
+    --panel-bg: #161920;
+    --text-color: #e2e8f0;
+    --accent-color: #ff007f;
+    --secondary-accent: #00f0ff;
+    --text-muted: #94a3b8;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+header {
+    text-align: center;
+    padding: 2rem;
+    border-bottom: 2px solid var(--accent-color);
+}
+
+nav {
+    background: var(--panel-bg);
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+nav a {
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+nav a:hover {
+    color: var(--secondary-accent);
+}
+
+main {
+    max-width: 1000px;
+    margin: auto;
+    padding: 2rem;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.item {
+    background: var(--panel-bg);
+    padding: 1rem;
+    border: 1px solid #242936;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Portfolio 🎧</h1>
+</header>
+
+<nav>
+    <a href="index.html">Home</a>
+    <a href="services.html">Services</a>
+    <a href="portfolio.html">Portfolio</a>
+    <a href="contact.html">Contact</a>
+</nav>
+
+<main>
+    <div class="grid">
+        <div class="item">Trap Mix - Project A</div>
+        <div class="item">Hip-Hop Master - Project B</div>
+        <div class="item">Studio Session - Project C</div>
+        <div class="item">Vocal Edit - Project D</div>
+    </div>
+</main>
+
+</body>
+</html>
