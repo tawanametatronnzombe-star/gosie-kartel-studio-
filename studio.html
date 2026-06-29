@@ -1,412 +1,438 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>DAW ENGINE</title>
 
-<style>
-body{
-margin:0;
-font-family:Arial;
-background:#050814;
-color:white;
-}
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+&lt;meta charset="UTF-8" /&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
+&lt;title&gt;StudioCraft — Beat Maker&lt;/title&gt;
+&lt;style&gt;
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
 
-/* TOP BAR */
-header{
-padding:14px;
-background:#0f172a;
-text-align:center;
-font-weight:bold;
-border-bottom:1px solid #1e2a44;
-}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* CONTROL BAR */
-.controls{
-display:flex;
-flex-wrap:wrap;
-justify-content:center;
-gap:6px;
-padding:8px;
-background:#0a1020;
-}
+  :root {
+    --bg:        #0A0A0F;
+    --card:      #10101E;
+    --border:    #1E1E38;
+    --muted:     #1A1A2E;
+    --muted-fg:  #6B7280;
+    --fg:        #E8EAF0;
+    --primary:   #00E5FF;
+    --accent:    #BF00FF;
+    --amber:     #FF6B00;
+    --green:     #00CC88;
+    --pink:      #FF3366;
+    --yellow:    #FFDD00;
+    --radius:    6px;
+    --neon:      0 0 8px rgba(0,229,255,.6), 0 0 24px rgba(0,229,255,.2);
+    --neon-v:    0 0 8px rgba(191,0,255,.6), 0 0 24px rgba(191,0,255,.2);
+  }
 
-button{
-padding:10px;
-background:#2563eb;
-border:none;
-border-radius:8px;
-color:white;
-cursor:pointer;
-}
+  html, body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Montserrat', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
 
-button:hover{
-background:#1d4ed8;
-}
+  * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+  *::-webkit-scrollbar { width:6px; height:6px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb { background: var(--border); border-radius:3px; }
 
-/* MAIN LAYOUT */
-.layout{
-display:grid;
-grid-template-columns:260px 1fr 260px;
-height:90vh;
-}
+  .app { max-width: 900px; margin: 0 auto; padding: 20px 16px 40px; }
 
-/* MOBILE */
-@media(max-width:900px){
-.layout{
-grid-template-columns:1fr;
-height:auto;
-}
-}
+  .header { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px; }
+  .header h1 { font-size:clamp(1.3rem,3vw,1.8rem); font-weight:800; letter-spacing:-.02em; }
+  .grad { background: linear-gradient(135deg,var(--primary),var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  .header p { font-size:.8rem; color:var(--muted-fg); margin-top:3px; }
+  .badges { display:flex; gap:8px; align-items:center; }
+  .badge { font-size:.7rem; font-weight:700; padding:3px 10px; border-radius:20px; border:1px solid; }
+  .badge-bpm { border-color:var(--primary); color:var(--primary); }
+  .badge-playing { background:var(--primary); color:#0A0A0F; border-color:var(--primary); animation: pulse 1s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
 
-/* LEFT */
-.patch{
-background:#0c1222;
-padding:10px;
-overflow:auto;
-border-right:1px solid #1e2a44;
-}
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 0 0 1px var(--border), 0 4px 24px rgba(0,0,0,.5);
+    margin-bottom: 14px;
+    transition: border-color .2s;
+  }
 
-.node{
-background:#18233a;
-padding:10px;
-margin-bottom:10px;
-border-radius:8px;
-}
+  .transport { padding:14px 16px; display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
 
-/* CENTER */
-.center{
-padding:10px;
-overflow:auto;
-}
+  button.btn {
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:'Montserrat',sans-serif; font-size:.78rem; font-weight:700;
+    padding:7px 14px; border-radius:var(--radius); border:none; cursor:pointer;
+    transition:all .15s; white-space:nowrap;
+  }
+  .btn-play { background:var(--primary); color:#0A0A0F; box-shadow:var(--neon); }
+  .btn-play:hover { filter:brightness(1.15); }
+  .btn-stop { background:#e53e3e; color:#fff; }
+  .btn-stop:hover { filter:brightness(1.1); }
+  .btn-ghost { background:transparent; color:var(--muted-fg); border:1px solid var(--border); }
+  .btn-ghost:hover { color:var(--fg); border-color:var(--primary); }
 
-.track{
-background:#0d1224;
-padding:10px;
-margin-bottom:12px;
-border-radius:10px;
-border:1px solid #1e2a44;
-}
+  .slider-group { display:flex; align-items:center; gap:8px; flex:1; min-width:160px; }
+  .slider-label { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted-fg); white-space:nowrap; }
+  .slider-val { font-size:.8rem; font-weight:800; color:var(--primary); width:2.5rem; text-align:right; }
 
-.grid{
-display:grid;
-grid-template-columns:repeat(8,1fr);
-gap:5px;
-}
+  input[type=range] {
+    -webkit-appearance:none; appearance:none;
+    flex:1; height:4px; background:var(--border); border-radius:2px; outline:none; cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance:none; width:14px; height:14px; border-radius:50%;
+    background:var(--primary); box-shadow:var(--neon); cursor:pointer;
+  }
+  input[type=range]::-moz-range-thumb {
+    width:14px; height:14px; border-radius:50%; border:none;
+    background:var(--primary); box-shadow:var(--neon); cursor:pointer;
+  }
 
-.pad{
-aspect-ratio:1;
-background:#1a2238;
-border-radius:6px;
-cursor:pointer;
-transition:0.2s;
-}
+  .seq-header { display:flex; border-bottom:1px solid var(--border); }
+  .track-label-col { width:76px; flex-shrink:0; padding:8px 10px; font-size:.6rem; color:var(--muted-fg); text-transform:uppercase; letter-spacing:.07em; font-weight:700; }
+  .step-nums { flex:1; overflow-x:auto; }
+  .step-nums-row { display:flex; min-width:512px; }
+  .step-num { flex:1; text-align:center; padding:7px 0; font-size:.6rem; color:var(--muted-fg); border-right:1px solid rgba(255,255,255,.04); font-weight:600; }
+  .step-num:last-child { border-right:none; }
+  .step-num.beat { font-weight:800; }
+  .step-num.active { color:var(--primary); font-weight:800; }
 
-.pad.active{
-background:#00ff99;
-box-shadow:0 0 10px #00ff99;
-}
+  .seq-track { display:flex; border-bottom:1px solid rgba(255,255,255,.04); transition:background .15s; }
+  .seq-track:last-child { border-bottom:none; }
+  .seq-track:hover { background:rgba(255,255,255,.018); }
 
-/* RIGHT */
-.panel{
-background:#0b1120;
-padding:10px;
-border-left:1px solid #1e2a44;
-}
+  .track-name { width:76px; flex-shrink:0; display:flex; align-items:center; padding:6px 10px; font-size:.65rem; font-weight:800; border-left:2px solid; }
 
-canvas{
-width:100%;
-height:120px;
-background:#050816;
-border-radius:8px;
-margin-top:10px;
-}
-</style>
-</head>
+  .steps-scroll { flex:1; overflow-x:auto; }
+  .steps-row { display:flex; padding:5px 5px; gap:2px; min-width:512px; }
 
-<body>
+  .step {
+    flex:1; height:32px; border-radius:3px; cursor:pointer; border:none;
+    background:var(--muted); transition:all .07s; position:relative; overflow:hidden;
+  }
+  .step:hover { background:#2a2a44; }
+  .step.beat-gap { margin-right:3px; }
+  .step.on { background:var(--step-color,var(--primary)); box-shadow:0 0 7px var(--step-color,var(--primary)), 0 0 2px var(--step-color,var(--primary)); }
+  .step.playing-on { background:var(--step-color,var(--primary)) !important; box-shadow:0 0 14px var(--step-color,var(--primary)), 0 0 30px var(--step-color,var(--primary)) !important; }
+  .step.playing-off { background:var(--muted); box-shadow:inset 0 0 0 1px rgba(0,229,255,.3); }
 
-<header>🎛️DAW ENGINE STUDIO</header>
+  .pads-section { padding:14px 16px; }
+  .section-title { font-size:.65rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--muted-fg); margin-bottom:10px; }
+  .pads-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
 
-<div class="controls">
-<button onclick="init()">INIT AUDIO</button>
-<button onclick="addOsc()">OSC</button>
-<button onclick="addNoise()">NOISE</button>
-<button onclick="toggle()">PLAY</button>
-<button onclick="kickTest()">KICK TEST</button>
+  .pad {
+    aspect-ratio:1; border-radius:var(--radius); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Montserrat',sans-serif; font-size:.65rem; font-weight:800;
+    border:none; transition:all .07s; user-select:none;
+    text-transform:uppercase; letter-spacing:.04em;
+  }
+  .pad:active, .pad.pressed { transform:scale(.9); }
+
+  .patterns-section { padding:14px 16px; }
+  .patterns-list { display:flex; flex-wrap:wrap; gap:8px; }
+  .pattern-btn {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:5px 12px; border-radius:20px;
+    background:transparent; border:1px solid var(--border); color:var(--fg);
+    font-family:'Montserrat',sans-serif; font-size:.72rem; font-weight:600; cursor:pointer;
+    transition:all .15s;
+  }
+  .pattern-btn:hover { border-color:var(--primary); color:var(--primary); }
+  .pattern-del {
+    background:none; border:none; cursor:pointer; color:var(--muted-fg);
+    display:flex; align-items:center; font-size:.7rem; padding:0 0 0 4px;
+    transition:color .15s;
+  }
+  .pattern-del:hover { color:#e53e3e; }
+
+  #toast {
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--card); border:1px solid var(--primary);
+    box-shadow:var(--neon); border-radius:var(--radius);
+    padding:10px 20px; font-size:.8rem; font-weight:700; color:var(--primary);
+    opacity:0; pointer-events:none; transition:all .3s; z-index:999; white-space:nowrap;
+  }
+  #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  @media(max-width:480px) {
+    .transport { gap:8px; }
+    .slider-group { min-width:130px; }
+  }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+<div class="app">
+
+  <div class="header">
+    <div>
+      <h1>Beat <span class="grad">Maker</span></h1>
+      <p id="info-text">16-step sequencer · 8 instruments · loading…</p>
+    </div>
+    <div class="badges">
+      <span class="badge badge-bpm" id="bpm-badge">120 BPM</span>
+      <span class="badge badge-playing" id="playing-badge" style="display:none">PLAYING</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="transport">
+      &lt;button class="btn btn-play" id="play-btn" onclick="togglePlay()"&gt;
+        &lt;svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"&gt;&lt;polygon points="5,3 19,12 5,21"/&gt;&lt;/svg&gt;
+        Play
+      &lt;/button&gt;
+      &lt;button class="btn btn-ghost" onclick="resetGrid()"&gt;
+        &lt;svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"&gt;&lt;polyline points="1,4 1,10 7,10"/&gt;&lt;path d="M3.51 15a9 9 0 1 0 .49-5"/&gt;&lt;/svg&gt;
+        Reset
+      &lt;/button&gt;
+      &lt;button class="btn btn-ghost" onclick="savePattern()"&gt;
+        &lt;svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"&gt;&lt;path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/&gt;&lt;polyline points="17,21 17,13 7,13"/&gt;&lt;polyline points="7,3 7,8 15,8"/&gt;&lt;/svg&gt;
+        Save
+      &lt;/button&gt;
+      <div class="slider-group">
+        <span class="slider-label">BPM</span>
+        &lt;input type="range" id="bpm-slider" min="60" max="200" value="120" oninput="updateBpm(this.value)"&gt;
+        <span class="slider-val" id="bpm-val">120</span>
+      </div>
+      <div class="slider-group" style="flex:0;min-width:130px;">
+        &lt;svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted-fg)" stroke-width="2.5" style="flex-shrink:0"&gt;&lt;polygon points="11,5 6,9 2,9 2,15 6,15 11,19 11,5"/&gt;&lt;path d="M15.54 8.46a5 5 0 0 1 0 7.07"/&gt;&lt;/svg&gt;
+        &lt;input type="range" id="vol-slider" min="0" max="100" value="80" oninput="updateVolume(this.value)" style="width:80px;flex:none;"&gt;
+        <span class="slider-val" id="vol-val" style="color:var(--muted-fg)">80</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="sequencer">
+    <div class="seq-header">
+      <div class="track-label-col">Track</div>
+      <div class="step-nums">
+        <div class="step-nums-row" id="step-num-row"></div>
+      </div>
+    </div>
+    <div id="tracks-container"></div>
+  </div>
+
+  <div class="card">
+    <div class="pads-section">
+      <div class="section-title">Drum Pads — tap to preview</div>
+      <div class="pads-grid" id="pads-grid"></div>
+    </div>
+  </div>
+
+  <div class="card" id="saved-card" style="display:none">
+    <div class="patterns-section">
+      <div class="section-title" id="saved-title">Saved Patterns</div>
+      <div class="patterns-list" id="patterns-list"></div>
+    </div>
+  </div>
+
 </div>
 
-<div class="layout">
+<div id="toast"></div>
 
-<!-- LEFT -->
-<div class="patch" id="patch">
-<h3>🔌 AudioNodes</h3>
-</div>
+&lt;script&gt;
+const STEPS = 16;
+const TRACKS = [
+  { id:'kick',    label:'KICK',    color:'#00E5FF', accent:'rgba(0,229,255,.12)' },
+  { id:'snare',   label:'SNARE',   color:'#BF00FF', accent:'rgba(191,0,255,.12)' },
+  { id:'hihat',   label:'HI-HAT',  color:'#FF6B00', accent:'rgba(255,107,0,.12)' },
+  { id:'openhat', label:'OPEN HH', color:'#00CC88', accent:'rgba(0,204,136,.12)' },
+  { id:'clap',    label:'CLAP',    color:'#FF3366', accent:'rgba(255,51,102,.12)' },
+  { id:'bass',    label:'BASS',    color:'#FFDD00', accent:'rgba(255,221,0,.12)' },
+  { id:'synth',   label:'SYNTH',   color:'#00E5FF', accent:'rgba(0,229,255,.08)' },
+  { id:'perc',    label:'PERC',    color:'#BF00FF', accent:'rgba(191,0,255,.08)' },
+];
 
-<!-- CENTER -->
-<div class="center">
+let grid = createDefaultGrid();
+let bpm = 120, volume = 0.8, playing = false, currentStep = -1;
+let savedPatterns = [], audioCtx = null, schedulerTimer = null, uiTimer = null;
+let nextNoteTime = 0, schedStep = 0;
 
-<div class="track">
-<h3>🥁 KICK</h3>
-<div class="grid" id="kick"></div>
-</div>
-
-<div class="track">
-<h3>🎧 SNARE</h3>
-<div class="grid" id="snare"></div>
-</div>
-
-<div class="track">
-<h3>🔊 HIHAT</h3>
-<div class="grid" id="hat"></div>
-</div>
-
-</div>
-
-<!-- RIGHT -->
-<div class="panel">
-<h3>📊 VISUALIZER</h3>
-<canvas id="viz"></canvas>
-</div>
-
-</div>
-
-<script>
-
-/* ================= ENGINE SAFETY ================= */
-let ctx = null;
-let master = null;
-let ready = false;
-
-let nodes=[];
-
-let kickGrid=[], snareGrid=[], hatGrid=[];
-let step=0;
-let playing=false;
-
-/* ================= INIT ================= */
-function init(){
-if(ctx) return;
-
-ctx = new (window.AudioContext || window.webkitAudioContext)();
-
-master = ctx.createGain();
-master.gain.value = 0.6;
-master.connect(ctx.destination);
-
-ready = true;
-
-build("kick",kickGrid);
-build("snare",snareGrid);
-build("hat",hatGrid);
-
-initViz();
-
-alert("🔥 STUDIO READY");
+function createDefaultGrid() {
+  const g = {};
+  for (const t of TRACKS) g[t.id] = Array(STEPS).fill(false);
+  g.kick[0]=g.kick[4]=g.kick[8]=g.kick[12]=true;
+  g.snare[4]=g.snare[12]=true;
+  for(let i=0;i&lt;STEPS;i+=2) g.hihat[i]=true;
+  return g;
 }
 
-/* ================= NODES ================= */
-function addOsc(){
-if(!ready) return alert("Click INIT first");
-
-let o=ctx.createOscillator();
-let g=ctx.createGain();
-
-o.type="sawtooth";
-o.frequency.value=220;
-
-o.connect(g);
-g.connect(master);
-
-o.start();
-
-createNode("OSC",g);
-nodes.push({o,g});
+function getCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function makeGain(ctx, t, val, decay) {
+  const g = ctx.createGain(); g.connect(ctx.destination);
+  g.gain.setValueAtTime(val * volume, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + decay);
+  return g;
+}
+function noise(ctx, dur) {
+  const n = Math.ceil(ctx.sampleRate * dur);
+  const buf = ctx.createBuffer(1, n, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i=0;i&lt;n;i++) d[i]=Math.random()*2-1;
+  const src = ctx.createBufferSource(); src.buffer = buf; return src;
+}
+function playKick(ctx, t) {
+  const osc=ctx.createOscillator(), g=makeGain(ctx,t,1,.5);
+  osc.connect(g); osc.frequency.setValueAtTime(150,t);
+  osc.frequency.exponentialRampToValueAtTime(0.01,t+.5);
+  osc.start(t); osc.stop(t+.5);
+}
+function playSnare(ctx, t) {
+  const src=noise(ctx,.2), g=makeGain(ctx,t,.8,.2);
+  const f=ctx.createBiquadFilter(); f.type='highpass'; f.frequency.value=1000;
+  src.connect(f); f.connect(g); src.start(t); src.stop(t+.2);
+}
+function playHihat(ctx, t, open) {
+  const dur=open?.3:.08, src=noise(ctx,dur), g=makeGain(ctx,t,.4,dur);
+  const f=ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=8000; f.Q.value=.5;
+  src.connect(f); f.connect(g); src.start(t); src.stop(t+dur);
+}
+function playClap(ctx, t) {
+  for(let i=0;i&lt;3;i++){
+    const src=noise(ctx,.05), g=makeGain(ctx,t+i*.01,.6,.1);
+    const f=ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=1200;
+    src.connect(f); f.connect(g); src.start(t+i*.01); src.stop(t+i*.01+.1);
+  }
+}
+function playBass(ctx, t) {
+  const osc=ctx.createOscillator(), g=makeGain(ctx,t,.5,.3);
+  osc.type='sawtooth'; osc.connect(g); osc.frequency.value=80;
+  osc.start(t); osc.stop(t+.3);
+}
+function playSynth(ctx, t) {
+  const osc=ctx.createOscillator(), g=makeGain(ctx,t,.2,.15);
+  osc.type='square'; osc.connect(g); osc.frequency.value=440;
+  osc.start(t); osc.stop(t+.15);
+}
+function playPerc(ctx, t) {
+  const osc=ctx.createOscillator(), g=makeGain(ctx,t,.5,.15);
+  osc.connect(g); osc.frequency.setValueAtTime(300,t);
+  osc.frequency.exponentialRampToValueAtTime(100,t+.1);
+  osc.start(t); osc.stop(t+.15);
+}
+function trigger(id, t) {
+  const ctx = getCtx();
+  switch(id) {
+    case 'kick':    playKick(ctx,t);break;
+    case 'snare':   playSnare(ctx,t);break;
+    case 'hihat':   playHihat(ctx,t,false);break;
+    case 'openhat': playHihat(ctx,t,true);break;
+    case 'clap':    playClap(ctx,t);break;
+    case 'bass':    playBass(ctx,t);break;
+    case 'synth':   playSynth(ctx,t);break;
+    case 'perc':    playPerc(ctx,t);break;
+  }
 }
 
-function addNoise(){
-if(!ready) return alert("Click INIT first");
-
-let b=ctx.createBuffer(1,ctx.sampleRate,ctx.sampleRate);
-let d=b.getChannelData(0);
-
-for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
-
-let n=ctx.createBufferSource();
-n.buffer=b;
-n.loop=true;
-
-let g=ctx.createGain();
-g.gain.value=0.2;
-
-n.connect(g);
-g.connect(master);
-
-n.start();
-
-createNode("NOISE",g);
-nodes.push({n,g});
+function scheduler() {
+  const ctx = getCtx();
+  while (nextNoteTime &lt; ctx.currentTime + 0.1) {
+    for (const t of TRACKS) { if (grid[t.id][schedStep]) trigger(t.id, nextNoteTime); }
+    nextNoteTime += 60 / bpm / 4;
+    schedStep = (schedStep + 1) % STEPS;
+  }
+  schedulerTimer = setTimeout(scheduler, 25);
 }
-
-function createNode(name,gain){
-let div=document.createElement("div");
-div.className="node";
-
-div.innerHTML=`
-<b>${name}</b><br>
-<input type="range" min="0" max="1" step="0.01" value="0.5">
-`;
-
-div.querySelector("input").oninput=e=>{
-gain.gain.value=e.target.value;
-};
-
-document.getElementById("patch").appendChild(div);
+function startPlayback() {
+  const ctx = getCtx(); schedStep = 0; nextNoteTime = ctx.currentTime;
+  playing = true; currentStep = 0; scheduler();
+  const stepMs = (60 / bpm / 4) * 1000;
+  uiTimer = setInterval(() =&gt; { currentStep = (currentStep + 1) % STEPS; renderStepHighlight(); }, stepMs);
+  updateUI();
 }
-
-/* ================= GRID ================= */
-function build(id,arr){
-let c=document.getElementById(id);
-
-for(let i=0;i<8;i++){
-let p=document.createElement("div");
-p.className="pad";
-
-p.onclick=()=>{
-p.classList.toggle("active");
-arr[i]=p.classList.contains("active");
-};
-
-c.appendChild(p);
-arr.push(false);
+function stopPlayback() {
+  playing = false; currentStep = -1;
+  if (schedulerTimer) clearTimeout(schedulerTimer);
+  if (uiTimer) clearInterval(uiTimer);
+  renderStepHighlight(); updateUI();
 }
+function togglePlay() { if (playing) stopPlayback(); else startPlayback(); }
+
+function toggleStep(trackId, stepIdx) {
+  grid[trackId][stepIdx] = !grid[trackId][stepIdx];
+  const btn = document.getElementById(`step-${trackId}-${stepIdx}`);
+  if (btn) applyStepClass(btn, trackId, stepIdx);
+  const ctx = getCtx(); trigger(trackId, ctx.currentTime);
 }
-
-/* ================= DRUM ENGINE ================= */
-function kick(){
-let o=ctx.createOscillator();
-let g=ctx.createGain();
-
-o.frequency.setValueAtTime(140,ctx.currentTime);
-o.frequency.exponentialRampToValueAtTime(40,ctx.currentTime+0.12);
-
-g.gain.setValueAtTime(1,ctx.currentTime);
-g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.12);
-
-o.connect(g);
-g.connect(master);
-
-o.start();
-o.stop(ctx.currentTime+0.12);
+function resetGrid() { stopPlayback(); grid = createDefaultGrid(); renderGrid(); showToast('Pattern reset to default'); }
+function savePattern() {
+  const name = `Pattern ${savedPatterns.length + 1}`;
+  savedPatterns.push({ name, grid: JSON.parse(JSON.stringify(grid)), bpm });
+  renderSaved(); showToast(`Saved: ${name}`);
 }
-
-function snare(){
-let b=ctx.createBuffer(1,ctx.sampleRate*0.1,ctx.sampleRate);
-let d=b.getChannelData(0);
-
-for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*0.8;
-
-let n=ctx.createBufferSource();
-n.buffer=b;
-
-let f=ctx.createBiquadFilter();
-f.type="highpass";
-f.frequency.value=2000;
-
-let g=ctx.createGain();
-g.gain.value=0.4;
-
-n.connect(f);
-f.connect(g);
-g.connect(master);
-
-n.start();
+function loadPattern(idx) {
+  stopPlayback();
+  const p = savedPatterns[idx]; grid = JSON.parse(JSON.stringify(p.grid)); bpm = p.bpm;
+  document.getElementById('bpm-slider').value = bpm;
+  document.getElementById('bpm-val').textContent = bpm;
+  document.getElementById('bpm-badge').textContent = bpm + ' BPM';
+  renderGrid(); showToast(`Loaded: ${p.name}`);
 }
+function deletePattern(idx) { savedPatterns.splice(idx, 1); renderSaved(); }
 
-function hihat(){
-let b=ctx.createBuffer(1,ctx.sampleRate*0.05,ctx.sampleRate);
-let d=b.getChannelData(0);
-
-for(let i=0;i<d.length;i++) d[i]=Math.random();
-
-let n=ctx.createBufferSource();
-n.buffer=b;
-
-let f=ctx.createBiquadFilter();
-f.type="highpass";
-f.frequency.value=7000;
-
-let g=ctx.createGain();
-g.gain.value=0.2;
-
-n.connect(f);
-f.connect(g);
-g.connect(master);
-
-n.start();
+function updateBpm(v) {
+  bpm = parseInt(v);
+  document.getElementById('bpm-val').textContent = bpm;
+  document.getElementById('bpm-badge').textContent = bpm + ' BPM';
+  if (playing) { stopPlayback(); startPlayback(); }
 }
+function updateVolume(v) { volume = parseInt(v) / 100; document.getElementById('vol-val').textContent = v; }
 
-/* ================= LOOP ================= */
-function loop(){
-if(!ready || !playing) return;
-
-let i=step%8;
-
-if(kickGrid[i]) kick();
-if(snareGrid[i]) snare();
-if(hatGrid[i]) hihat();
-
-step++;
-setTimeout(loop,140);
+function applyStepClass(btn, trackId, stepIdx) {
+  const on = grid[trackId][stepIdx], isPlaying = currentStep === stepIdx;
+  const track = TRACKS.find(t=&gt;t.id===trackId);
+  btn.className = 'step' + (stepIdx % 4 === 3 && stepIdx &lt; STEPS-1 ? ' beat-gap' : '');
+  btn.style.setProperty('--step-color', track.color);
+  if (on && isPlaying) btn.classList.add('playing-on');
+  else if (on) btn.classList.add('on');
+  else if (isPlaying) btn.classList.add('playing-off');
 }
-
-function toggle(){
-if(!ready) return alert("Init first");
-
-playing=!playing;
-if(playing) loop();
+function renderStepHighlight() {
+  for (const track of TRACKS)
+    for (let s=0; s&lt;STEPS; s++) { const b=document.getElementById(`step-${track.id}-${s}`); if(b) applyStepClass(b,track.id,s); }
+  for (let i=0; i&lt;STEPS; i++) {
+    const el=document.getElementById(`stepnum-${i}`); if(!el) continue;
+    el.className='step-num'+(i%4===0?' beat':'')+(i===currentStep?' active':'');
+  }
 }
-
-function kickTest(){
-if(ready) kick();
+function renderGrid() {
+  for (const track of TRACKS)
+    for (let s=0; s&lt;STEPS; s++) { const b=document.getElementById(`step-${track.id}-${s}`); if(b) applyStepClass(b,track.id,s); }
+  updateInfo();
 }
-
-/* ================= VISUALIZER ================= */
-let analyser,dataArray;
-
-function initViz(){
-analyser=ctx.createAnalyser();
-analyser.fftSize=64;
-
-master.connect(analyser);
-
-dataArray=new Uint8Array(analyser.frequencyBinCount);
-
-draw();
+function updateUI() {
+  const playBtn=document.getElementById('play-btn'), badge=document.getElementById('playing-badge');
+  if (playing) {
+    playBtn.className='btn btn-stop';
+    playBtn.innerHTML=`&lt;svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"&gt;&lt;rect x="3" y="3" width="18" height="18"/&gt;&lt;/svg&gt; Stop`;
+    badge.style.display='inline-flex';
+  } else {
+    playBtn.className='btn btn-play';
+    playBtn.innerHTML=`&lt;svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"&gt;&lt;polygon points="5,3 19,12 5,21"/&gt;&lt;/svg&gt; Play`;
+    badge.style.display='none';
+  }
 }
-
-function draw(){
-requestAnimationFrame(draw);
-
-if(!analyser) return;
-
-analyser.getByteFrequencyData(dataArray);
-
-let c=document.getElementById("viz");
-if(!c) return;
-
-let x=c.getContext("2d");
-
-x.clearRect(0,0,300,120);
-
-for(let i=0;i<dataArray.length;i++){
-let h=dataArray[i]/2;
-x.fillStyle="#00ff99";
-x.fillRect(i*4,120-h,3,h);
+function updateInfo() {
+  const active = Object.values(grid).reduce((s,r)=&gt;s+r.filter(Boolean).length,0);
+  document.getElementById('info-text').textContent = `${STEPS}-step sequencer · ${TRACKS.length} instruments · ${active} active steps`;
 }
-}
-
-</script>
-
-</body>
-</html>
+function renderSaved() {
+  const card=document.getElementById('saved-card'), list=document.getElementById('patterns-list');
+  const title=document.getElementById('saved-title');
+  if (!savedPatterns.length) { card.style.display='none'; return; }
+  card.style.display='block'; title.textContent=`Saved Patterns (${savedPatterns.length})`;
+  list.innerHTML='';
+  savedPatterns.forEach((p,i) =&gt; {
+    const wrap=document.createElement('button'); wrap.className='pattern-btn'; wrap.onclick=()=&gt;loadPattern(i);
+    wrap.innerHTML=`&lt;svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"&gt;&lt;polyline points="9,18 15,12 9,6"/&gt;&lt;/svg&gt;${p.name} — ${p.bpm} BPM<span class="pattern-del">&lt;svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"&gt;&lt;polyline points="3,6 5,6 21,6"/&gt;&lt;path
