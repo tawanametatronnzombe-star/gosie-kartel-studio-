@@ -3,294 +3,1292 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>StudioCraft — Beat Maker</title>
+<title>🎵 StudioCraft Pro - Music Production DAW</title>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 :root {
-  --bg:#0A0A0F;
-  --card:#10101E;
-  --border:#1E1E38;
-  --muted:#1A1A2E;
-  --muted-fg:#6B7280;
-  --fg:#E8EAF0;
-  --primary:#00E5FF;
-  --accent:#BF00FF;
-  --radius:6px;
+  --bg: #0A0A0F;
+  --card: #10101E;
+  --border: #1E1E38;
+  --muted: #1A1A2E;
+  --muted-fg: #6B7280;
+  --fg: #E8EAF0;
+  --primary: #00E5FF;
+  --accent: #BF00FF;
+  --success: #00FF88;
+  --danger: #FF3B3B;
+  --radius: 6px;
 }
 
 body {
   background: var(--bg);
   color: var(--fg);
   font-family: Montserrat, sans-serif;
+  overflow: hidden;
 }
 
-.app { max-width:900px; margin:auto; padding:20px; }
+.container {
+  display: grid;
+  grid-template-columns: 250px 1fr 300px;
+  grid-template-rows: 60px 1fr 200px;
+  height: 100vh;
+  gap: 8px;
+  padding: 8px;
+}
 
-.card {
+/* HEADER */
+.header {
+  grid-column: 1 / -1;
   background: var(--card);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  margin-bottom:14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 100;
 }
 
-button { cursor:pointer; }
+.logo {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--primary);
+}
 
-.transport { padding:14px; display:flex; gap:10px; flex-wrap:wrap; }
+.transport-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
 
 .btn {
-  padding:8px 14px;
-  border:none;
-  border-radius:6px;
-  font-weight:700;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 12px;
 }
 
-.btn-play { background:var(--primary); color:#000; }
-.btn-stop { background:#ff3b3b; color:#fff; }
-.btn-ghost { background:transparent; border:1px solid var(--border); color:var(--fg); }
+.btn-play {
+  background: var(--primary);
+  color: #000;
+}
+
+.btn-play:hover {
+  opacity: 0.9;
+}
+
+.btn-stop {
+  background: var(--danger);
+  color: #fff;
+}
+
+.btn-record {
+  background: #FF1744;
+  color: #fff;
+}
+
+.btn-record.recording {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--fg);
+}
+
+.btn-ghost:hover {
+  background: var(--muted);
+}
+
+.bpm-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bpm-control input {
+  width: 80px;
+  padding: 6px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  border-radius: 4px;
+}
+
+.bpm-value {
+  color: var(--primary);
+  font-weight: 700;
+  min-width: 45px;
+}
+
+/* SIDEBAR */
+.sidebar {
+  grid-row: 2;
+  grid-column: 1;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.sidebar-section {
+  margin-bottom: 16px;
+}
+
+.sidebar-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-item {
+  padding: 10px;
+  margin-bottom: 6px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 12px;
+}
+
+.sidebar-item:hover {
+  background: var(--border);
+  border-color: var(--primary);
+}
+
+.sidebar-item.active {
+  background: var(--primary);
+  color: #000;
+  border-color: var(--primary);
+}
+
+/* MAIN CONTENT */
+.main {
+  grid-row: 2;
+  grid-column: 2;
+  display: grid;
+  grid-template-rows: 1fr;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  overflow-y: auto;
+  display: none;
+}
+
+.panel.active {
+  display: block;
+}
+
+/* SEQUENCER */
+.seq-track {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+.track-label {
+  width: 70px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 8px;
+  background: var(--muted);
+  border-radius: 4px;
+  text-align: center;
+  color: var(--primary);
+}
+
+.steps-row {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+}
 
 .step {
-  flex:1;
-  height:30px;
-  background:var(--muted);
-  border:none;
+  flex: 1;
+  height: 28px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.1s;
 }
 
-.step.on { background:var(--primary); }
-
-.seq-track { display:flex; }
-
-.track-name {
-  width:70px;
-  padding:8px;
-  font-size:12px;
+.step:hover {
+  border-color: var(--primary);
 }
 
-.steps-row { display:flex; gap:2px; flex:1; }
-
-.pads-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; padding:14px; }
-
-.pad {
-  padding:20px;
-  border:1px solid var(--border);
-  background:var(--muted);
-  color:white;
+.step.on {
+  background: var(--primary);
+  border-color: var(--primary);
 }
 
-#toast {
-  position:fixed;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
-  background:#111;
-  padding:10px 20px;
-  border-radius:8px;
-  display:none;
+/* BEAT LIBRARY */
+.beat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.beat-card {
+  background: linear-gradient(135deg, var(--muted), var(--card));
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.beat-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 229, 255, 0.2);
+}
+
+.beat-title {
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.beat-meta {
+  font-size: 11px;
+  color: var(--muted-fg);
+}
+
+.beat-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.beat-btn {
+  flex: 1;
+  padding: 6px;
+  background: var(--primary);
+  border: none;
+  border-radius: 3px;
+  color: #000;
+  font-weight: 600;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.beat-btn:hover {
+  opacity: 0.9;
+}
+
+.beat-btn.secondary {
+  background: var(--accent);
+}
+
+/* RIGHT PANEL */
+.right-panel {
+  grid-row: 2;
+  grid-column: 3;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.right-tab {
+  font-size: 10px;
+  padding: 8px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.right-tab.active {
+  background: var(--primary);
+  color: #000;
+}
+
+.lyrics-editor {
+  background: var(--muted);
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  color: var(--fg);
+  font-family: monospace;
+  font-size: 11px;
+  min-height: 150px;
+  resize: none;
+}
+
+/* BOTTOM PLAYER */
+.player {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+.player-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+
+.player-waveform {
+  width: 100%;
+  height: 60px;
+  background: linear-gradient(180deg, var(--muted), var(--border));
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  padding: 4px;
+  overflow: hidden;
+}
+
+.waveform-bar {
+  flex: 1;
+  background: linear-gradient(180deg, var(--primary), var(--accent));
+  border-radius: 2px;
+  min-height: 2px;
+}
+
+.player-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.player-btn {
+  padding: 6px 12px;
+  background: var(--primary);
+  border: none;
+  border-radius: 4px;
+  color: #000;
+  font-weight: 600;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.player-btn:hover {
+  opacity: 0.9;
+}
+
+.player-btn.danger {
+  background: var(--danger);
+}
+
+.player-progress {
+  flex: 1;
+  height: 4px;
+  background: var(--muted);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  min-width: 100px;
+}
+
+.player-progress-bar {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.05s linear;
+}
+
+/* MODALS */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: var(--card);
+  border: 2px solid var(--primary);
+  border-radius: 8px;
+  padding: 24px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 16px;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  display: block;
+  color: var(--fg);
+}
+
+.form-input, .form-textarea, .form-select {
+  width: 100%;
+  padding: 8px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--fg);
+  font-family: Montserrat, sans-serif;
+}
+
+.form-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.modal-btn-primary {
+  background: var(--primary);
+  color: #000;
+}
+
+.modal-btn-cancel {
+  background: var(--muted);
+  color: var(--fg);
+  border: 1px solid var(--border);
+}
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--muted);
+  border: 1px solid var(--primary);
+  padding: 12px 20px;
+  border-radius: 6px;
+  color: var(--fg);
+  display: none;
+  z-index: 2000;
+  animation: slideIn 0.3s ease;
+}
+
+.toast.show {
+  display: block;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+  .container {
+    grid-template-columns: 200px 1fr 250px;
+  }
+}
+
+@media (max-width: 900px) {
+  .container {
+    grid-template-columns: 1fr;
+    grid-template-rows: 60px 1fr 180px;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .right-panel {
+    display: none;
+  }
 }
 </style>
 </head>
 
 <body>
-<div class="app">
-
-  <div class="card transport">
-    <button class="btn btn-play" id="playBtn" onclick="togglePlay()">Play</button>
-    <button class="btn btn-ghost" onclick="resetGrid()">Reset</button>
-    <button class="btn btn-ghost" onclick="savePattern()">Save</button>
-
-    <input type="range" min="60" max="200" value="120" id="bpm" oninput="updateBpm(this.value)">
-    <span id="bpmVal">120</span>
+<div class="container">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">🎵 StudioCraft Pro</div>
+    <div class="transport-controls">
+      <button class="btn btn-play" id="playBtn" onclick="togglePlay()">▶ Play</button>
+      <button class="btn btn-stop" id="stopBtn" onclick="stopPlayback()" style="display:none;">⏹ Stop</button>
+      <button class="btn btn-record" id="recordBtn" onclick="toggleRecord()">● Record</button>
+      <div class="bpm-control">
+        <span>BPM:</span>
+        <input type="range" min="60" max="200" value="120" id="bpm" oninput="updateBpm(this.value)">
+        <span class="bpm-value" id="bpmVal">120</span>
+      </div>
+      <button class="btn btn-ghost" onclick="openProjectModal()">💾 Save</button>
+      <button class="btn btn-ghost" onclick="openLoadModal()">📂 Load</button>
+    </div>
   </div>
 
-  <div class="card" id="sequencer"></div>
+  <!-- SIDEBAR (NAVIGATION) -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Studio</div>
+      <div class="sidebar-item active" onclick="switchPanel('sequencer')">🎹 Sequencer</div>
+      <div class="sidebar-item" onclick="switchPanel('beats')">🎵 Beat Library</div>
+      <div class="sidebar-item" onclick="switchPanel('pads')">🎛️ Drum Pads</div>
+    </div>
 
-  <div class="card">
-    <div class="pads-grid" id="pads"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Projects</div>
+      <div id="projectList"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Quick Tools</div>
+      <div class="sidebar-item" onclick="clearSession()">🗑️ Clear</div>
+      <div class="sidebar-item" onclick="exportAudio()">⬇️ Export</div>
+    </div>
   </div>
 
+  <!-- MAIN CONTENT -->
+  <div class="main">
+    <!-- SEQUENCER PANEL -->
+    <div class="panel active" id="sequencer">
+      <h3 style="margin-bottom: 16px; color: var(--primary);">🎹 Step Sequencer</h3>
+      <div id="sequencerContent"></div>
+    </div>
+
+    <!-- BEAT LIBRARY PANEL -->
+    <div class="panel" id="beats">
+      <h3 style="margin-bottom: 16px; color: var(--primary);">🎵 Free Beat Library</h3>
+      <div class="beat-grid" id="beatGrid"></div>
+    </div>
+
+    <!-- DRUM PADS PANEL -->
+    <div class="panel" id="pads">
+      <h3 style="margin-bottom: 16px; color: var(--primary);">🎛️ Drum Pads</h3>
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+        <div id="padContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL (LYRICS & METADATA) -->
+  <div class="right-panel">
+    <div class="right-tab active" onclick="switchRightTab('lyrics')">📝 Lyrics</div>
+    <div class="right-tab" onclick="switchRightTab('info')">ℹ️ Info</div>
+
+    <div id="lyricsTab" style="display: block;">
+      <textarea class="lyrics-editor" id="lyricsEditor" placeholder="Write your lyrics here..."></textarea>
+    </div>
+
+    <div id="infoTab" style="display: none;">
+      <div style="font-size: 11px; line-height: 1.6;">
+        <div style="margin-bottom: 8px;">
+          <span style="color: var(--primary);">Title:</span>
+          <div id="infoTitle" style="color: var(--muted-fg);">Untitled</div>
+        </div>
+        <div style="margin-bottom: 8px;">
+          <span style="color: var(--primary);">Duration:</span>
+          <div id="infoDuration" style="color: var(--muted-fg);">0:00</div>
+        </div>
+        <div style="margin-bottom: 8px;">
+          <span style="color: var(--primary);">Key:</span>
+          <select class="form-select" id="keySelect" style="padding: 4px;">
+            <option>C</option>
+            <option>C#</option>
+            <option>D</option>
+            <option>Eb</option>
+            <option>E</option>
+            <option>F</option>
+            <option>F#</option>
+            <option>G</option>
+            <option>G#</option>
+            <option>A</option>
+            <option>Bb</option>
+            <option>B</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAYER -->
+  <div class="player">
+    <div class="player-title">📊 Track Output</div>
+    <div class="player-waveform" id="waveform"></div>
+    <div class="player-controls">
+      <div class="player-progress" onclick="seekAudio(event)">
+        <div class="player-progress-bar" id="progressBar"></div>
+      </div>
+      <span style="font-size: 11px; min-width: 60px; text-align: center;">
+        <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+      </span>
+      <button class="player-btn" onclick="downloadProject()">⬇️ Download</button>
+      <button class="player-btn danger" onclick="deleteProject()">🗑️ Delete</button>
+    </div>
+  </div>
 </div>
 
-<div id="toast"></div>
+<!-- MODALS -->
+<div class="modal" id="saveModal">
+  <div class="modal-content">
+    <div class="modal-title">💾 Save Project</div>
+    <div class="form-group">
+      <label class="form-label">Project Name</label>
+      <input type="text" class="form-input" id="projectName" placeholder="My Track">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Artist Name</label>
+      <input type="text" class="form-input" id="artistName" placeholder="Your Name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Genre</label>
+      <select class="form-select" id="genreSelect">
+        <option>Hip Hop</option>
+        <option>Trap</option>
+        <option>Drill</option>
+        <option>Reggae</option>
+        <option>Afrobeats</option>
+        <option>Pop</option>
+        <option>R&B</option>
+        <option>Electronic</option>
+      </select>
+    </div>
+    <div class="modal-buttons">
+      <button class="modal-btn modal-btn-primary" onclick="saveProject()">Save</button>
+      <button class="modal-btn modal-btn-cancel" onclick="closeModal('saveModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="loadModal">
+  <div class="modal-content">
+    <div class="modal-title">📂 Load Project</div>
+    <div id="loadProjectList" style="max-height: 400px; overflow-y: auto;"></div>
+    <div class="modal-buttons">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModal('loadModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST NOTIFICATION -->
+<div class="toast" id="toast"></div>
 
 <script>
+// ==================== GLOBALS ====================
 const STEPS = 16;
-
 const TRACKS = [
-  {id:"kick", color:"#00E5FF"},
-  {id:"snare", color:"#BF00FF"},
-  {id:"hihat", color:"#FF6B00"},
-  {id:"clap", color:"#FF3366"}
+  { id: "kick", label: "Kick", color: "#00E5FF" },
+  { id: "snare", label: "Snare", color: "#BF00FF" },
+  { id: "hihat", label: "Hi-Hat", color: "#FF6B00" },
+  { id: "clap", label: "Clap", color: "#FF3366" }
 ];
 
 let grid = {};
 let bpm = 120;
 let playing = false;
-let step = 0;
+let recording = false;
 let audioCtx;
+let masterGain;
+let nextTime = 0;
+let schedStep = 0;
+let currentProject = null;
+let recordingBuffer = null;
+let recordingGain = null;
 
-function initGrid() {
-  TRACKS.forEach(t=>{
-    grid[t.id] = Array(STEPS).fill(false);
-  });
-  grid.kick[0]=grid.kick[4]=grid.kick[8]=grid.kick[12]=true;
-  grid.snare[4]=grid.snare[12]=true;
-  for(let i=0;i<STEPS;i+=2) grid.hihat[i]=true;
-}
+// Free royalty beats library
+const BEAT_LIBRARY = [
+  { id: 1, title: "Trap Vibes", bpm: 140, genre: "Trap", color: "#FF1744" },
+  { id: 2, title: "Lo-Fi Hip Hop", bpm: 90, genre: "Hip Hop", color: "#00E5FF" },
+  { id: 3, title: "Drill Beat", bpm: 160, genre: "Drill", color: "#BF00FF" },
+  { id: 4, title: "Reggae Roots", bpm: 110, genre: "Reggae", color: "#00FF88" },
+  { id: 5, title: "Afrobeats Wave", bpm: 120, genre: "Afrobeats", color: "#FF6B00" },
+  { id: 6, title: "Smooth R&B", bpm: 95, genre: "R&B", color: "#FF3366" },
+  { id: 7, title: "Synth Wave", bpm: 130, genre: "Electronic", color: "#00FFFF" },
+  { id: 8, title: "UK Garage", bpm: 170, genre: "Garage", color: "#AA00FF" },
+];
 
+// ==================== AUDIO FUNCTIONS ====================
 function ctx() {
-  if(!audioCtx) audioCtx = new AudioContext();
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    masterGain.connect(audioCtx.destination);
+  }
   return audioCtx;
 }
 
-function noise(dur=0.2){
+function initRecording() {
   const c = ctx();
-  const buffer = c.createBuffer(1, c.sampleRate*dur, c.sampleRate);
+  const bufferSize = c.sampleRate * 60; // 60 second buffer
+  recordingBuffer = c.createBuffer(2, bufferSize, c.sampleRate);
+  recordingGain = c.createGain();
+  recordingGain.connect(c.destination);
+  masterGain.connect(recordingGain);
+}
+
+function noise(dur = 0.2) {
+  const c = ctx();
+  const buffer = c.createBuffer(1, c.sampleRate * dur, c.sampleRate);
   const data = buffer.getChannelData(0);
-  for(let i=0;i<data.length;i++) data[i]=Math.random()*2-1;
+  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
   const src = c.createBufferSource();
   src.buffer = buffer;
   return src;
 }
 
-function kick(t){
-  const c=ctx();
-  const osc=c.createOscillator();
-  const g=c.createGain();
-  osc.connect(g); g.connect(c.destination);
-  osc.frequency.setValueAtTime(150,t);
-  osc.frequency.exponentialRampToValueAtTime(0.01,t+0.5);
-  osc.start(t); osc.stop(t+0.5);
+function kick(t) {
+  const c = ctx();
+  const osc = c.createOscillator();
+  const g = c.createGain();
+  osc.connect(g);
+  g.connect(masterGain);
+  osc.frequency.setValueAtTime(150, t);
+  osc.frequency.exponentialRampToValueAtTime(0.01, t + 0.5);
+  osc.start(t);
+  osc.stop(t + 0.5);
 }
 
-function snare(t){
-  const c=ctx();
-  const src=noise(0.2);
-  const g=c.createGain();
-  const f=c.createBiquadFilter();
-  f.type="highpass"; f.frequency.value=1000;
-  src.connect(f); f.connect(g); g.connect(c.destination);
-  g.gain.setValueAtTime(0.8,t);
-  g.gain.exponentialRampToValueAtTime(0.001,t+0.2);
-  src.start(t); src.stop(t+0.2);
+function snare(t) {
+  const c = ctx();
+  const src = noise(0.2);
+  const g = c.createGain();
+  const f = c.createBiquadFilter();
+  f.type = "highpass";
+  f.frequency.value = 1000;
+  src.connect(f);
+  f.connect(g);
+  g.connect(masterGain);
+  g.gain.setValueAtTime(0.8, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+  src.start(t);
+  src.stop(t + 0.2);
 }
 
-function hihat(t){
-  const c=ctx();
-  const src=noise(0.05);
-  const g=c.createGain();
-  const f=c.createBiquadFilter();
-  f.type="bandpass"; f.frequency.value=8000;
-  src.connect(f); f.connect(g); g.connect(c.destination);
-  g.gain.setValueAtTime(0.3,t);
-  g.gain.exponentialRampToValueAtTime(0.001,t+0.05);
-  src.start(t); src.stop(t+0.05);
+function hihat(t) {
+  const c = ctx();
+  const src = noise(0.05);
+  const g = c.createGain();
+  const f = c.createBiquadFilter();
+  f.type = "bandpass";
+  f.frequency.value = 8000;
+  src.connect(f);
+  f.connect(g);
+  g.connect(masterGain);
+  g.gain.setValueAtTime(0.3, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+  src.start(t);
+  src.stop(t + 0.05);
 }
 
-function trigger(id,t){
-  if(id==="kick") kick(t);
-  if(id==="snare") snare(t);
-  if(id==="hihat") hihat(t);
+function clap(t) {
+  const c = ctx();
+  const src = noise(0.15);
+  const g = c.createGain();
+  const f = c.createBiquadFilter();
+  f.type = "highpass";
+  f.frequency.value = 1500;
+  src.connect(f);
+  f.connect(g);
+  g.connect(masterGain);
+  g.gain.setValueAtTime(0.6, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+  src.start(t);
+  src.stop(t + 0.15);
 }
 
-let nextTime=0;
-let schedStep=0;
+function trigger(id, t) {
+  if (id === "kick") kick(t);
+  else if (id === "snare") snare(t);
+  else if (id === "hihat") hihat(t);
+  else if (id === "clap") clap(t);
+}
 
-function scheduler(){
-  const c=ctx();
-  while(nextTime < c.currentTime+0.1){
-    TRACKS.forEach(t=>{
-      if(grid[t.id][schedStep]) trigger(t.id,nextTime);
+function scheduler() {
+  const c = ctx();
+  while (nextTime < c.currentTime + 0.1) {
+    TRACKS.forEach((t) => {
+      if (grid[t.id] && grid[t.id][schedStep]) {
+        trigger(t.id, nextTime);
+      }
     });
 
-    nextTime += 60/bpm/4;
-    schedStep = (schedStep+1)%STEPS;
+    nextTime += (60 / bpm / 4);
+    schedStep = (schedStep + 1) % STEPS;
   }
-  setTimeout(scheduler,25);
+  setTimeout(scheduler, 25);
 }
 
-function start(){
-  const c=ctx();
-  nextTime=c.currentTime;
-  schedStep=0;
+function start() {
+  const c = ctx();
+  nextTime = c.currentTime;
+  schedStep = 0;
   scheduler();
 }
 
-function togglePlay(){
-  playing=!playing;
-  document.getElementById("playBtn").textContent = playing?"Stop":"Play";
-  if(playing) start();
+// ==================== UI FUNCTIONS ====================
+function initGrid() {
+  TRACKS.forEach((t) => {
+    grid[t.id] = Array(STEPS).fill(false);
+  });
+  grid.kick[0] = grid.kick[4] = grid.kick[8] = grid.kick[12] = true;
+  grid.snare[4] = grid.snare[12] = true;
+  for (let i = 0; i < STEPS; i += 2) grid.hihat[i] = true;
 }
 
-function build(){
-  initGrid();
+function togglePlay() {
+  playing = !playing;
+  const playBtn = document.getElementById("playBtn");
+  const stopBtn = document.getElementById("stopBtn");
+  
+  if (playing) {
+    playBtn.style.display = "none";
+    stopBtn.style.display = "block";
+    start();
+  } else {
+    playBtn.style.display = "block";
+    stopBtn.style.display = "none";
+  }
+}
 
-  const seq=document.getElementById("sequencer");
-  seq.innerHTML="";
+function stopPlayback() {
+  playing = false;
+  const playBtn = document.getElementById("playBtn");
+  const stopBtn = document.getElementById("stopBtn");
+  playBtn.style.display = "block";
+  stopBtn.style.display = "none";
+}
 
-  TRACKS.forEach(t=>{
-    const row=document.createElement("div");
-    row.className="seq-track";
+function toggleRecord() {
+  recording = !recording;
+  const recordBtn = document.getElementById("recordBtn");
+  
+  if (recording) {
+    initRecording();
+    recordBtn.classList.add("recording");
+    recordBtn.textContent = "🔴 Recording";
+    showToast("Recording started...");
+  } else {
+    recordBtn.classList.remove("recording");
+    recordBtn.textContent = "● Record";
+    showToast("Recording stopped");
+  }
+}
 
-    const name=document.createElement("div");
-    name.className="track-name";
-    name.textContent=t.id;
+function updateBpm(v) {
+  bpm = v;
+  document.getElementById("bpmVal").textContent = v;
+}
 
-    const steps=document.createElement("div");
-    steps.className="steps-row";
+function switchPanel(panelId) {
+  document.querySelectorAll(".panel").forEach((p) => p.classList.remove("active"));
+  document.getElementById(panelId).classList.add("active");
+  
+  document.querySelectorAll(".sidebar-item").forEach((i) => i.classList.remove("active"));
+  event.target.classList.add("active");
+}
 
-    for(let i=0;i<STEPS;i++){
-      const b=document.createElement("button");
-      b.className="step";
-      b.onclick=()=> {
-        grid[t.id][i]=!grid[t.id][i];
-        b.classList.toggle("on");
+function switchRightTab(tabId) {
+  document.getElementById("lyricsTab").style.display = "none";
+  document.getElementById("infoTab").style.display = "none";
+  document.getElementById(tabId + "Tab").style.display = "block";
+  
+  document.querySelectorAll(".right-tab").forEach((t) => t.classList.remove("active"));
+  event.target.classList.add("active");
+}
+
+function buildSequencer() {
+  const container = document.getElementById("sequencerContent");
+  container.innerHTML = "";
+
+  TRACKS.forEach((t) => {
+    const row = document.createElement("div");
+    row.className = "seq-track";
+
+    const label = document.createElement("div");
+    label.className = "track-label";
+    label.textContent = t.label;
+
+    const stepsRow = document.createElement("div");
+    stepsRow.className = "steps-row";
+
+    for (let i = 0; i < STEPS; i++) {
+      const btn = document.createElement("button");
+      btn.className = "step";
+      if (grid[t.id][i]) btn.classList.add("on");
+      btn.onclick = () => {
+        grid[t.id][i] = !grid[t.id][i];
+        btn.classList.toggle("on");
         trigger(t.id, ctx().currentTime);
       };
-      steps.appendChild(b);
+      stepsRow.appendChild(btn);
     }
 
-    row.appendChild(name);
-    row.appendChild(steps);
-    seq.appendChild(row);
-  });
-
-  const pads=document.getElementById("pads");
-  TRACKS.forEach(t=>{
-    const p=document.createElement("button");
-    p.className="pad";
-    p.textContent=t.id;
-    p.onclick=()=>trigger(t.id,ctx().currentTime);
-    pads.appendChild(p);
+    row.appendChild(label);
+    row.appendChild(stepsRow);
+    container.appendChild(row);
   });
 }
 
-function resetGrid(){
+function buildPads() {
+  const container = document.getElementById("padContainer");
+  container.innerHTML = "";
+
+  TRACKS.forEach((t) => {
+    const pad = document.createElement("button");
+    pad.style.cssText = `
+      padding: 30px;
+      background: linear-gradient(135deg, ${t.color}33, ${t.color}11);
+      border: 2px solid ${t.color};
+      border-radius: 8px;
+      color: ${t.color};
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.1s;
+      user-select: none;
+    `;
+    pad.textContent = t.label;
+    pad.onmousedown = () => {
+      pad.style.transform = "scale(0.95)";
+      trigger(t.id, ctx().currentTime);
+    };
+    pad.onmouseup = () => {
+      pad.style.transform = "scale(1)";
+    };
+    pad.onmouseleave = () => {
+      pad.style.transform = "scale(1)";
+    };
+    container.appendChild(pad);
+  });
+}
+
+function buildBeatLibrary() {
+  const grid = document.getElementById("beatGrid");
+  grid.innerHTML = "";
+
+  BEAT_LIBRARY.forEach((beat) => {
+    const card = document.createElement("div");
+    card.className = "beat-card";
+    card.innerHTML = `
+      <div class="beat-title">${beat.title}</div>
+      <div class="beat-meta">🎚️ ${beat.bpm} BPM | ${beat.genre}</div>
+      <div class="beat-actions">
+        <button class="beat-btn" onclick="loadBeat(${beat.id})">Load</button>
+        <button class="beat-btn secondary" onclick="previewBeat(${beat.id})">Play</button>
+        <button class="beat-btn" onclick="downloadBeat(${beat.id})">DL</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function loadBeat(beatId) {
+  const beat = BEAT_LIBRARY.find((b) => b.id === beatId);
+  if (beat) {
+    bpm = beat.bpm;
+    document.getElementById("bpm").value = beat.bpm;
+    document.getElementById("bpmVal").textContent = beat.bpm;
+    showToast(`Loaded: ${beat.title} at ${beat.bpm} BPM`);
+  }
+}
+
+function previewBeat(beatId) {
+  const beat = BEAT_LIBRARY.find((b) => b.id === beatId);
+  if (beat) {
+    showToast(`Preview: ${beat.title}`);
+    // In a real app, this would load an audio file
+  }
+}
+
+function downloadBeat(beatId) {
+  const beat = BEAT_LIBRARY.find((b) => b.id === beatId);
+  if (beat) {
+    showToast(`Downloading: ${beat.title}...`);
+    // Simulate download
+    setTimeout(() => showToast(`✓ Downloaded: ${beat.title}`), 1500);
+  }
+}
+
+function clearSession() {
+  if (confirm("Clear all tracks and start fresh?")) {
+    initGrid();
+    buildSequencer();
+    showToast("Session cleared!");
+  }
+}
+
+function openProjectModal() {
+  document.getElementById("saveModal").classList.add("active");
+}
+
+function openLoadModal() {
+  document.getElementById("loadModal").classList.add("active");
+  updateProjectList(true);
+}
+
+function closeModal(modalId) {
+  document.getElementById(modalId).classList.remove("active");
+}
+
+function saveProject() {
+  const name = document.getElementById("projectName").value || "Untitled";
+  const artist = document.getElementById("artistName").value || "Unknown";
+  const genre = document.getElementById("genreSelect").value;
+
+  if (!name) {
+    showToast("Please enter a project name");
+    return;
+  }
+
+  const project = {
+    id: Date.now(),
+    name,
+    artist,
+    genre,
+    bpm,
+    grid: JSON.parse(JSON.stringify(grid)),
+    lyrics: document.getElementById("lyricsEditor").value,
+    timestamp: new Date().toLocaleString()
+  };
+
+  let projects = JSON.parse(localStorage.getItem("projects")) || [];
+  projects.push(project);
+  localStorage.setItem("projects", JSON.stringify(projects));
+
+  currentProject = project;
+  showToast(`✓ Project saved: ${name}`);
+  closeModal("saveModal");
+  updateProjectList();
+}
+
+function updateProjectList(openLoad = false) {
+  const projects = JSON.parse(localStorage.getItem("projects")) || [];
+  const projectList = document.getElementById("projectList");
+  const loadProjectList = document.getElementById("loadProjectList");
+
+  projectList.innerHTML = "";
+  loadProjectList.innerHTML = "";
+
+  if (projects.length === 0) {
+    const empty = document.createElement("div");
+    empty.style.cssText = "padding: 12px; color: var(--muted-fg); font-size: 11px;";
+    empty.textContent = "No projects yet";
+    projectList.appendChild(empty);
+    if (openLoad) loadProjectList.appendChild(empty.cloneNode(true));
+    return;
+  }
+
+  projects.forEach((p) => {
+    const item = document.createElement("div");
+    item.className = "sidebar-item";
+    item.style.display = "flex";
+    item.style.justifyContent = "space-between";
+    item.style.alignItems = "center";
+    item.innerHTML = `
+      <div>
+        <div style="font-weight: 700;">${p.name}</div>
+        <div style="font-size: 10px; color: var(--muted-fg);">${p.artist}</div>
+      </div>
+      <button class="btn btn-ghost" style="padding: 4px 8px; font-size: 10px;" onclick="loadProject(${p.id})">Load</button>
+    `;
+    projectList.appendChild(item);
+
+    if (openLoad) {
+      const loadItem = document.createElement("div");
+      loadItem.className = "sidebar-item";
+      loadItem.style.display = "flex";
+      loadItem.style.justifyContent = "space-between";
+      loadItem.style.alignItems = "center";
+      loadItem.innerHTML = `
+        <div>
+          <div style="font-weight: 700;">${p.name}</div>
+          <div style="font-size: 10px; color: var(--muted-fg);">${p.artist} • ${p.genre}</div>
+        </div>
+        <button class="btn btn-ghost" style="padding: 4px 8px; font-size: 10px;" onclick="loadProject(${p.id}); closeModal('loadModal');">Load</button>
+      `;
+      loadProjectList.appendChild(loadItem);
+    }
+  });
+}
+
+function loadProject(projectId) {
+  const projects = JSON.parse(localStorage.getItem("projects")) || [];
+  const project = projects.find((p) => p.id === projectId);
+
+  if (project) {
+    currentProject = project;
+    grid = JSON.parse(JSON.stringify(project.grid));
+    bpm = project.bpm;
+    document.getElementById("bpm").value = project.bpm;
+    document.getElementById("bpmVal").textContent = project.bpm;
+    document.getElementById("lyricsEditor").value = project.lyrics || "";
+    document.getElementById("infoTitle").textContent = project.name;
+
+    buildSequencer();
+    showToast(`✓ Loaded: ${project.name}`);
+  }
+}
+
+function downloadProject() {
+  if (!currentProject) {
+    showToast("No project loaded");
+    return;
+  }
+
+  const data = JSON.stringify(currentProject, null, 2);
+  const blob = new Blob([data], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${currentProject.name}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast("✓ Project downloaded!");
+}
+
+function deleteProject() {
+  if (!currentProject) {
+    showToast("No project loaded");
+    return;
+  }
+
+  if (!confirm(`Delete "${currentProject.name}"?`)) return;
+
+  let projects = JSON.parse(localStorage.getItem("projects")) || [];
+  projects = projects.filter((p) => p.id !== currentProject.id);
+  localStorage.setItem("projects", JSON.stringify(projects));
+
+  currentProject = null;
+  clearSession();
+  updateProjectList();
+  showToast("✓ Project deleted");
+}
+
+function exportAudio() {
+  showToast("Export feature coming soon! (WAV/MP3)");
+}
+
+function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.textContent = msg;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 2500);
+}
+
+function seekAudio(e) {
+  // Placeholder for audio seeking
+  showToast("Seeking audio...");
+}
+
+// ==================== INIT ====================
+function init() {
   initGrid();
-  document.querySelectorAll(".step").forEach(b=>b.classList.remove("on"));
-  showToast("Reset!");
+  buildSequencer();
+  buildPads();
+  buildBeatLibrary();
+  updateProjectList();
+
+  // Update waveform visualization
+  setInterval(() => {
+    const waveform = document.getElementById("waveform");
+    waveform.innerHTML = "";
+    for (let i = 0; i < 80; i++) {
+      const bar = document.createElement("div");
+      bar.className = "waveform-bar";
+      bar.style.height = Math.random() * 100 + "%";
+      waveform.appendChild(bar);
+    }
+  }, 100);
 }
 
-function savePattern(){
-  showToast("Saved!");
-}
-
-function updateBpm(v){
-  bpm=v;
-  document.getElementById("bpmVal").textContent=v;
-}
-
-function showToast(msg){
-  const t=document.getElementById("toast");
-  t.textContent=msg;
-  t.style.display="block";
-  setTimeout(()=>t.style.display="none",1500);
-}
-
-build();
+// Start the app
+init();
 </script>
-
 </body>
 </html>
